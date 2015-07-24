@@ -82,7 +82,8 @@ class WP_To_Diaspora {
     define( 'WP2D_LIB', dirname( __FILE__ ) . '/lib' );
 
     // Load necessary classes.
-    if ( ! class_exists( 'HTML_To_Markdown' ) ) require_once WP2D_LIB . '/class-html-to-markdown.php';
+    if ( ! class_exists( 'Markdownify\Parser' ) ) require_once WP2D_LIB . '/class-markdownify-parser.php';
+    if ( ! class_exists( 'Markdownify\Converter' ) ) require_once WP2D_LIB . '/class-markdownify-converter.php';
     require_once WP2D_LIB . '/class-helpers.php';
     require_once WP2D_LIB . '/class-api.php';
 
@@ -284,15 +285,15 @@ class WP_To_Diaspora {
 
       // Add the original entry link to the post?
       if ( $meta_fullentrylink ) {
-        $status_message .= sprintf( '%1$s [%2$s](%2$s "%3$s")',
+        $status_message .= sprintf( '%1$s <a href="%2$s" title="%3$s">%2$s</a>',
           __( 'Originally posted at:', 'wp_to_diaspora' ),
           get_permalink( $post_id ),
           $post->post_title
         );
       }
 
-      $status_markdown = new HTML_To_Markdown( $status_message );
-      $status_message  = $status_markdown->output();
+      $status_markdown = new Markdownify\Converter;
+      $status_message = $status_markdown->parseString( $status_message );
 
       // Add services to share to via diaspora*.
       $extra_data = array(
